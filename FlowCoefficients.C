@@ -27,6 +27,8 @@ void FlowCoefficients() {
 	Double_t v_n[NH] = {0.0,0.12, 0.06, 0.03, 0.013}; //
 
 
+
+
 	Double_t v_psi[NH] = {0.0}; // Analytical EP Method: Values of Cos(n*(psi_i-Psi_n))
 	Double_t v_obs[NH] = {0.0}; // Q-vector EP Method: Values of Cos(n*(psi_i-Psi_EP))
 	Double_t v_deltaphi[NH] = {0.0}; // Two-Particle Method: Values of Cos(n*(psi_i-psi_j))
@@ -101,14 +103,8 @@ void FlowCoefficients() {
 	// Filling up Fourier decomposition with input values Vn and Psi_n
 	fourier->SetParameter(0,NP);
 	
-	for (int n=0; n<NH; n++) {
-		Psi_n[n] = uniform[n]->GetRandom();
-		fourier->SetParameter(n+1,v_n[n]);
-		fourier->SetParameter(n+1+NH, Psi_n[n]);
 
-	}
-
-	fourier->Draw();
+	
 
 	// Going through all the events (event: nucleus-nucleus collision)
 	for (int i=0; i<NE;i++) {
@@ -117,11 +113,20 @@ void FlowCoefficients() {
 		Double_t phis[NP] = {0.0};
 		Double_t Resolution[NH] = {0.0};
 		Double_t Psi_EP[NH] = {0.0};
-	
+
+
+		for (int n=0; n<NH; n++) {
+			Psi_n[n] = uniform[n]->GetRandom();
+			fourier->SetParameter(n+1,v_n[n]);
+			fourier->SetParameter(n+1+NH, Psi_n[n]);
+		}
+
+
 		// Going through 1000 particles (from one event nucleus-nucleus collision)
 		for (int j=0;j<NP;j++) {
 			phis[j] = fourier->GetRandom();
 
+			
 			// Going through every harmonic for each particle
 			for (int k=0; k<NH; k++) {
 
@@ -198,16 +203,15 @@ void FlowCoefficients() {
 
 	for (int i = 0; i < NH; i++){
 		hPhiPsi[i]->Write();
-		//hEventPlane[i]->Write();
+		hEventPlane[i]->Write();
 	}
 
 
-	/*
+	
 	TCanvas *hDeltaPhiSum_Canvas = new TCanvas ("hDeltaPhiSum", "hDeltaPhiSum", 900, 700); 
 	hDeltaPhiSum->Write();
 	hDeltaPhiSum->Draw();
-	*/
-
+	
 
 	output->cd();
 	output->Write();
